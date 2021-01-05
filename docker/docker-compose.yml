@@ -1,0 +1,27 @@
+version: "3.9"  # optional since v1.27.0
+
+#services:
+#  prometheus:
+#    image: prom/prometheus
+#    ports:
+#      - 9090:9090
+#    volumes:
+#      - ./prometheus.yml
+#  grafana:
+#    image: grafana/grafana
+#    ports:
+#      - 3000:3000
+#    environment:
+#      - GF_SECURITY_ADMIN_PASSWORD=suxue
+#    volumes:
+#      - d:/docker/grafana-7.3.0/grafana_db
+
+services:
+  consul:
+    image: progrium/consul
+    ports:
+      - 8400:8400
+      - 8500:8500
+      - 8600:53/udp
+    hostname: consulserver
+    command: -server -bootstrap -ui-dir /ui
