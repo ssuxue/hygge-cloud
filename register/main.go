@@ -5,7 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-kit/kit/log"
+	zp "github.com/go-kit/kit/tracing/zipkin"
 	"github.com/juju/ratelimit"
+	"github.com/openzipkin/zipkin-go"
+	zipkinhttp "github.com/openzipkin/zipkin-go/reporter/http"
 	"hygge-cloud/register/endpoints"
 	"hygge-cloud/register/service"
 	"hygge-cloud/register/transports"
@@ -23,6 +26,7 @@ func main() {
 		consulPort  = flag.String("consul.port", "8500", "consul port")
 		serviceHost = flag.String("service.host", "192.168.124.9", "service ip address")
 		servicePort = flag.String("service.port", "9000", "service port")
+		zipkinURL   = flag.String("zipkin.url", "http://192.168.124.9:9411/api/v2/spans", "Zipkin server url")
 	)
 
 	flag.Parse()
@@ -42,17 +46,44 @@ func main() {
 	svc = service.LoggingMiddleware(logger)(svc)
 	endpoint := endpoints.MakeEndpoint(svc)
 
+	var zipkinTracer *zipkin.Tracer
+	{
+		var (
+			err           error
+			hostPort      = *serviceHost + ":" + *servicePort
+			serviceName   = "hygge-service"
+			useNoopTracer = (*zipkinURL == "")
+			reporter      = zipkinhttp.NewReporter(*zipkinURL)
+		)
+		defer reporter.Close()
+		zEP, _ := zipkin.NewEndpoint(serviceName, hostPort)
+		zipkinTracer, err = zipkin.NewTracer(
+			reporter, zipkin.WithLocalEndpoint(zEP), zipkin.WithNoopTracer(useNoopTracer),
+		)
+		if err != nil {
+			logger.Log("err", err)
+			os.Exit(1)
+		}
+		if !useNoopTracer {
+			logger.Log("tracer", "Zipkin", "type", "Native", "URL", *zipkinURL)
+		}
+	}
+
 	// Set limiter capacity 3
 	rateBucket := ratelimit.NewBucket(time.Second, 3)
 	endpoint = service.NewTokenBucketLimiter(rateBucket)(endpoint)
+	endpoint = zp.TraceEndpoint(zipkinTracer, "login-endpoint")(endpoint)
 
 	healthEndpoint := endpoints.MakeHealthCheckEndpoint(svc)
+	healthEndpoint = service.NewTokenBucketLimiter(rateBucket)(healthEndpoint)
+	healthEndpoint = zp.TraceEndpoint(zipkinTracer, "health-endpoint")(healthEndpoint)
+
 	endpts := endpoints.MemberEndpoints{
 		MemberEndpoint:      endpoint,
 		HealthCheckEndpoint: healthEndpoint,
 	}
 
-	router := transports.MakeHttpHandler(ctx, endpts, logger)
+	router := transports.MakeHttpHandler(ctx, endpts, zipkinTracer, logger)
 
 	// create register object
 	register := transports.Register(*consulHost, *consulPort, *serviceHost, *servicePort, logger)
@@ -61,7 +92,7 @@ func main() {
 		fmt.Println("Http Server start at port:" + *servicePort)
 		// Execute register before running.
 		register.Register()
-		errChan <- http.ListenAndServe(":" + *servicePort, router)
+		errChan <- http.ListenAndServe(":"+*servicePort, router)
 	}()
 
 	go func() {

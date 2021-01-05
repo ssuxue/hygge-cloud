@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"github.com/go-kit/kit/log"
 	"github.com/hashicorp/consul/api"
+	"github.com/openzipkin/zipkin-go"
+	zipkinhttpsvr "github.com/openzipkin/zipkin-go/middleware/http"
+	zipkinhttp "github.com/openzipkin/zipkin-go/reporter/http"
 	"math/rand"
 	"net/http"
 	"net/http/httputil"
@@ -15,7 +18,7 @@ import (
 )
 
 // Create a reverse proxy processing method.
-func NewReverseProxy(client *api.Client, logger log.Logger) *httputil.ReverseProxy {
+func NewReverseProxy(client *api.Client, zikkinTracer *zipkin.Tracer, logger log.Logger) *httputil.ReverseProxy {
 
 	// create director
 	director := func(req *http.Request) {
@@ -46,7 +49,7 @@ func NewReverseProxy(client *api.Client, logger log.Logger) *httputil.ReversePro
 		destPath := strings.Join(pathArray[2:], "/")
 
 		// 随机选择一个服务实例
-		tgt := result[rand.Int() % len(result)]
+		tgt := result[rand.Int()%len(result)]
 		logger.Log("service id: ", tgt.ServiceID)
 
 		// 设置代理服务地址信息
@@ -55,14 +58,21 @@ func NewReverseProxy(client *api.Client, logger log.Logger) *httputil.ReversePro
 		req.URL.Path = "/" + destPath
 	}
 
-	return &httputil.ReverseProxy{Director: director}
+	// 为反向代理增加追踪逻辑，使用如下RoundTrip代替默认Transport
+	roundTrip, _ := zipkinhttpsvr.NewTransport(zikkinTracer, zipkinhttpsvr.TransportTrace(true))
+
+	return &httputil.ReverseProxy{
+		Director:  director,
+		Transport: roundTrip,
+	}
 }
 
 func main() {
 	// 创建环境变量
 	var (
-		consulHost = flag.String("consul.host", "localhost", "consul server ip address")
+		consulHost = flag.String("consul.host", "192.168.124.9", "consul server ip address")
 		consulPort = flag.String("consul.port", "8500", "consul server port")
+		zipkinURL  = flag.String("zipkin.url", "http://192.168.124.9:9411/api/v2/spans", "Zipkin server url")
 	)
 	flag.Parse()
 
@@ -72,6 +82,33 @@ func main() {
 		logger = log.NewLogfmtLogger(os.Stderr)
 		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 		logger = log.With(logger, "caller", log.DefaultCaller)
+	}
+
+	var zipkinTracer *zipkin.Tracer
+	{
+		var (
+			err           error
+			hostPort      = "localhost:9090"
+			svcName       = "gateway-service"
+			useNoopTracer = (*zipkinURL == "")
+			reporter      = zipkinhttp.NewReporter(*zipkinURL)
+		)
+
+		defer reporter.Close()
+		zipkinEndp, _ := zipkin.NewEndpoint(svcName, hostPort)
+		zipkinTracer, err = zipkin.NewTracer(
+			reporter,
+			zipkin.WithLocalEndpoint(zipkinEndp),
+			zipkin.WithNoopTracer(useNoopTracer),
+		)
+		if err != nil {
+			logger.Log("err", err)
+			os.Exit(1)
+		}
+
+		if !useNoopTracer {
+			logger.Log("tracer", "Zipkin", "type", "Native", "URL", *zipkinURL)
+		}
 	}
 
 	// Create consul api client.
@@ -84,7 +121,17 @@ func main() {
 	}
 
 	// Create Reverse Proxy
-	proxy := NewReverseProxy(consulCli, logger)
+	proxy := NewReverseProxy(consulCli, zipkinTracer, logger)
+
+	tags := map[string]string{
+		"component": "gateway_server",
+	}
+	handler := zipkinhttpsvr.NewServerMiddleware(
+		zipkinTracer,
+		zipkinhttpsvr.SpanName("gateway"),
+		zipkinhttpsvr.TagResponseSize(true),
+		zipkinhttpsvr.ServerTags(tags),
+	)(proxy)
 
 	errChan := make(chan error)
 	go func() {
@@ -96,7 +143,7 @@ func main() {
 	//开始监听
 	go func() {
 		logger.Log("transport", "HTTP", "addr", "9090")
-		errChan <- http.ListenAndServe(":9090", proxy)
+		errChan <- http.ListenAndServe(":9090", handler)
 	}()
 
 	// 开始运行，等待结束

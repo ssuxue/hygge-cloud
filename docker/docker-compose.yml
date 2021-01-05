@@ -25,3 +25,8 @@ services:
       - 8600:53/udp
     hostname: consulserver
     command: -server -bootstrap -ui-dir /ui
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - 9411:9411

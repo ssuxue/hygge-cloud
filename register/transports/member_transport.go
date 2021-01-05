@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/tracing/zipkin"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	gozipkin "github.com/openzipkin/zipkin-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"hygge-cloud/register/endpoints"
 	"net/http"
@@ -49,13 +51,16 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 }
 
 // MakeHttpHandler make http handler use mux
-func MakeHttpHandler(ctx context.Context, endpoint endpoints.MemberEndpoints, logger log.Logger) http.Handler {
+func MakeHttpHandler(ctx context.Context, endpoint endpoints.MemberEndpoints, zipkinTracer *gozipkin.Tracer, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
+
+	zipkinServer := zipkin.HTTPServerTrace(zipkinTracer, zipkin.Name("http-transport"))
 
 	options := []httptransport.ServerOption{
 		// Deprecated: Use ServerErrorHandler instead.
 		httptransport.ServerErrorLogger(logger),
 		httptransport.ServerErrorEncoder(httptransport.DefaultErrorEncoder),
+		zipkinServer,
 	}
 
 	r.Methods("POST").Path("/signInOrUp/{type}/{username}/{password}").Handler(httptransport.NewServer(
