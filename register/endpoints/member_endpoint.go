@@ -50,6 +50,11 @@ func MakeEndpoint(svc service.UserService) endpoint.Endpoint {
 			}
 		} else if strings.EqualFold(req.RequestType, "signup") {
 			// TODO 注册
+			token, err := svc.SignUp(username, password)
+			if err != nil {
+				return "", fmt.Errorf("signup error: %v", err)
+			}
+			return MemberResponse{Code: 200, Message: "操作成功", Data: token}, nil
 		} else {
 			return nil, errors.New("incorrect request mode")
 		}

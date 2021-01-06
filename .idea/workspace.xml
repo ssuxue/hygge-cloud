@@ -19,14 +19,14 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c6a0107f-00a4-4ed9-b20f-6d11c064166f" name="Default Changelist" comment="add zipkin service tracking">
-      <change afterPath="$PROJECT_DIR$/gateway/router/router.go" afterDir="false" />
+    <list default="true" id="c6a0107f-00a4-4ed9-b20f-6d11c064166f" name="Default Changelist" comment="add hystrix but no success">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/register/endpoints/member_endpoint.go" beforeDir="false" afterPath="$PROJECT_DIR$/register/endpoints/member_endpoint.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/register/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/register/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/register/service/instrument.go" beforeDir="false" afterPath="$PROJECT_DIR$/register/service/instrument.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/register/service/loggings.go" beforeDir="false" afterPath="$PROJECT_DIR$/register/service/loggings.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/register/service/member_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/register/service/member_service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,7 +77,7 @@
       <recent name="D:\Project\Go\src\hygge-cloud\register" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build main.go (3)">
+  <component name="RunManager" selected="Go Build.go build main.go (1)">
     <configuration name="go build hygge-cloud/discover" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="hygge-cloud" />
       <working_directory value="$PROJECT_DIR$" />
@@ -125,10 +125,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build main.go (3)" />
         <item itemvalue="Go Build.go build main.go (1)" />
-        <item itemvalue="Go Build.go build router.go" />
+        <item itemvalue="Go Build.go build main.go (3)" />
         <item itemvalue="Go Build.go build hygge-cloud/discover" />
+        <item itemvalue="Go Build.go build router.go" />
         <item itemvalue="Go Build.go build main.go (2)" />
       </list>
     </recent_temporary>
@@ -151,7 +151,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add zipkin service tracking" />
-    <option name="LAST_COMMIT_MESSAGE" value="add zipkin service tracking" />
+    <MESSAGE value="add hystrix but no success" />
+    <option name="LAST_COMMIT_MESSAGE" value="add hystrix but no success" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
@@ -174,30 +175,30 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1609744240824" />
-    <state width="1493" height="210" key="GridCell.Tab.0.bottom" timestamp="1609927350983">
+    <state width="1493" height="210" key="GridCell.Tab.0.bottom" timestamp="1609929709087">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="210" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1609927350983" />
-    <state width="1493" height="210" key="GridCell.Tab.0.center" timestamp="1609927350983">
+    <state width="1493" height="210" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1609929709087" />
+    <state width="1493" height="210" key="GridCell.Tab.0.center" timestamp="1609929709087">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="210" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1609927350983" />
-    <state width="1493" height="210" key="GridCell.Tab.0.left" timestamp="1609927350983">
+    <state width="1493" height="210" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1609929709087" />
+    <state width="1493" height="210" key="GridCell.Tab.0.left" timestamp="1609929709086">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="210" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1609927350983" />
-    <state width="1493" height="210" key="GridCell.Tab.0.right" timestamp="1609927350983">
+    <state width="1493" height="210" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1609929709086" />
+    <state width="1493" height="210" key="GridCell.Tab.0.right" timestamp="1609929709087">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="210" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1609927350983" />
+    <state width="1493" height="210" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1609929709087" />
     <state x="270" y="57" key="SettingsEditor" timestamp="1609842258574">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="270" y="57" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1609842258574" />
-    <state x="361" y="132" key="Vcs.Push.Dialog.v2" timestamp="1609842371642">
+    <state x="361" y="132" key="Vcs.Push.Dialog.v2" timestamp="1609927745310">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="361" y="132" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1609842371642" />
+    <state x="361" y="132" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1609927745310" />
     <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1609747445148">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

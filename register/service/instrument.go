@@ -53,14 +53,14 @@ func (mw metricMiddle) Login(username, password string) (ok bool, err error) {
 	return
 }
 
-func (mw metricMiddle) SignUp(username, password string) (ok bool, err error) {
+func (mw metricMiddle) SignUp(username, password string) (token string, err error) {
 	defer func(begin time.Time) {
 		lvs := []string{"method", "signup"}
 		mw.requestCount.With(lvs...).Add(1)
 		mw.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	ok, err = mw.SignUp(username, password)
+	token, err = mw.SignUp(username, password)
 	return
 }
 

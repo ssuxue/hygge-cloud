@@ -5,12 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-kit/kit/log"
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	zp "github.com/go-kit/kit/tracing/zipkin"
 	"github.com/juju/ratelimit"
 	"github.com/openzipkin/zipkin-go"
 	zipkinhttp "github.com/openzipkin/zipkin-go/reporter/http"
-	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"hygge-cloud/register/endpoints"
 	"hygge-cloud/register/service"
 	"hygge-cloud/register/transports"
@@ -43,25 +41,10 @@ func main() {
 		logger = log.With(logger, "caller", log.DefaultCaller)
 	}
 
-	fieldKeys := []string{"method"}
-	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-		Namespace: "chase",
-		Subsystem: "hygge_service",
-		Name:      "request_count",
-		Help:      "Number of requests received.",
-	}, fieldKeys)
-
-	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-		Namespace: "chase",
-		Subsystem: "hygge_service",
-		Name:      "request_latency",
-		Help:      "Total duration of requests in microseconds.",
-	}, fieldKeys)
-
 	var svc service.UserService
 	svc = service.NewMemberService()
 	svc = service.LoggingMiddleware(logger)(svc)
-	svc = service.Metrics(requestCount, requestLatency)(svc)
+	//svc = service.Metrics(requestCount, requestLatency)(svc)
 	endpoint := endpoints.MakeEndpoint(svc)
 
 	var zipkinTracer *zipkin.Tracer

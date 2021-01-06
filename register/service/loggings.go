@@ -34,18 +34,18 @@ func (mw loggingMiddleware) Login(username, password string) (ok bool, err error
 	return
 }
 
-func (mw loggingMiddleware) SignUp(username, password string) (ok bool, err error) {
+func (mw loggingMiddleware) SignUp(username, password string) (token string, err error) {
 	defer func(begin time.Time) {
 		mw.logger.Log(
 			"function", "login",
 			"username", username,
 			"password", password,
-			"result", ok,
+			"token", token,
 			"took", time.Since(begin),
 		)
 	}(time.Now())
 
-	ok, err = mw.UserService.Login(username, password)
+	token, err = mw.UserService.SignUp(username, password)
 	return
 }
 
@@ -55,7 +55,7 @@ func (mw loggingMiddleware) HealthCheck() (result bool) {
 			"function", "HealthCheck",
 			"result", result,
 			"took", time.Since(begin),
-			)
+		)
 	}(time.Now())
 
 	result = mw.UserService.HealthCheck()
