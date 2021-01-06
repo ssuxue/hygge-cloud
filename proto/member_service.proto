@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option go_package = "pb;pb";
+
+package proto;
+
+import "proto/member.proto";
+
+message CreateMemberRequest {
+  Member member = 1;
+}
+
+message CreateMemberResponse {
+  enum Code {
+    StatusOK = 0;
+    StatusBadRequest = 400;
+    StatusUnauthorized = 401;
+    StatusPaymentRequired = 402;
+    StatusForbidden = 403;
+    StatusNotFound = 404;
+    StatusMethodNotAllowed = 405;
+    StatusInternalServerError = 500;
+    StatusNotImplemented = 501;
+    StatusBadGateway = 502;
+    StatusServiceUnavailable = 503;
+    StatusGatewayTimeout = 504;
+  }
+
+  Code code = 1;
+  string message = 2;
+  Any data = 3;
+}
+
+message Any {
+  string type_url = 1;
+
+  // Must be a valid serialized protocol buffer of the above specified type.
+  bytes value = 2;
+}
+
+service MemberService {
+  rpc CreateMember(CreateMemberRequest) returns(CreateMemberResponse);
+}

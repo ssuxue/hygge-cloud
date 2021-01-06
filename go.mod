@@ -14,4 +14,6 @@ require (
 	github.com/juju/ratelimit v1.0.1
 	github.com/openzipkin/zipkin-go v0.2.5
 	github.com/prometheus/client_golang v1.9.0
+	google.golang.org/grpc v1.35.0-dev
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.0.1 // indirect
 )

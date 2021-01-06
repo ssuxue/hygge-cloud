@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option go_package = "pb;pb";
+
+message Member{
+  string id = 1;
+  string username = 2;
+  string password = 3;
+  string nickname = 4;
+  string avatar = 5;
+}
