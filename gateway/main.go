@@ -3,12 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/afex/hystrix-go/hystrix"
 	"github.com/go-kit/kit/log"
 	"github.com/hashicorp/consul/api"
 	"github.com/openzipkin/zipkin-go"
 	zipkinhttpsvr "github.com/openzipkin/zipkin-go/middleware/http"
 	zipkinhttp "github.com/openzipkin/zipkin-go/reporter/http"
+	"hygge-cloud/gateway/router"
 	"math/rand"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -22,7 +25,7 @@ func NewReverseProxy(client *api.Client, zikkinTracer *zipkin.Tracer, logger log
 
 	// create director
 	director := func(req *http.Request) {
-		// Query the original request path, such as: /hygge/signInOrUp/login/chase/123.
+		// Query the origin`````````````````````````````````````````````````````al request path, such as: /hygge/signInOrUp/login/chase/123.
 		// The hygge is service name and the another is interface path.
 		reqPath := req.URL.Path
 		if reqPath == "" {
@@ -95,6 +98,7 @@ func main() {
 		)
 
 		defer reporter.Close()
+
 		zipkinEndp, _ := zipkin.NewEndpoint(svcName, hostPort)
 		zipkinTracer, err = zipkin.NewTracer(
 			reporter,
@@ -121,19 +125,30 @@ func main() {
 	}
 
 	// Create Reverse Proxy
-	proxy := NewReverseProxy(consulCli, zipkinTracer, logger)
+	// proxy := NewReverseProxy(consulCli, zipkinTracer, logger)
 
 	tags := map[string]string{
 		"component": "gateway_server",
 	}
+
+	hystrixRouter := router.Routes(consulCli, zipkinTracer, "Circuit Breaker:Service unavailable", logger)
+
 	handler := zipkinhttpsvr.NewServerMiddleware(
 		zipkinTracer,
 		zipkinhttpsvr.SpanName("gateway"),
 		zipkinhttpsvr.TagResponseSize(true),
 		zipkinhttpsvr.ServerTags(tags),
-	)(proxy)
+	)(hystrixRouter)
 
 	errChan := make(chan error)
+
+	// 启用hystrix实时监控，监听端口为9010
+	hystrixStreamHandler := hystrix.NewStreamHandler()
+	hystrixStreamHandler.Start()
+	go func() {
+		errChan <- http.ListenAndServe(net.JoinHostPort("", "9010"), hystrixStreamHandler)
+	}()
+
 	go func() {
 		c := make(chan os.Signal)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
