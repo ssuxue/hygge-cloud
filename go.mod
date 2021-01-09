@@ -6,6 +6,7 @@ require (
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-kit/kit v0.10.0
+	github.com/go-redis/redis/v8 v8.4.5
 	github.com/google/uuid v1.1.3
 	github.com/googleapis/googleapis v0.0.0-20210105034547-ad3bb00ed775 // indirect
 	github.com/gorilla/mux v1.8.0
