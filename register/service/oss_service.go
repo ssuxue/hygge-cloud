@@ -7,8 +7,8 @@ import (
 )
 
 var endpoint string = "http://oss-cn-beijing.aliyuncs.com"
-var accessKeyId string = "LTAI4G2Z3WBiKdUYs8hKMYi5"
-var accessKeySecret string = "pW10GhV4YfWN0yrxtqvu8NUHksAzGB"
+var accessKeyId string = ""
+var accessKeySecret string = ""
 var bucketName string = "chase-oss1"
 
 type OSSClient struct {

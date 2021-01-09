@@ -19,12 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c6a0107f-00a4-4ed9-b20f-6d11c064166f" name="Default Changelist" comment="add go-redis">
-      <change afterPath="$PROJECT_DIR$/register/service/oss_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-    </list>
+    <list default="true" id="c6a0107f-00a4-4ed9-b20f-6d11c064166f" name="Default Changelist" comment="add oss" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -152,7 +147,8 @@
     <MESSAGE value="add jwt" />
     <MESSAGE value="add grpc to member" />
     <MESSAGE value="add go-redis" />
-    <option name="LAST_COMMIT_MESSAGE" value="add go-redis" />
+    <MESSAGE value="add oss" />
+    <option name="LAST_COMMIT_MESSAGE" value="add oss" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
@@ -195,10 +191,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="270" y="57" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1609842258574" />
-    <state x="361" y="132" key="Vcs.Push.Dialog.v2" timestamp="1610182790822">
+    <state x="361" y="132" key="Vcs.Push.Dialog.v2" timestamp="1610185689876">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="361" y="132" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1610182790822" />
+    <state x="361" y="132" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1610185689876" />
     <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1609747445148">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
